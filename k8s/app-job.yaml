@@ -1,0 +1,42 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ai-cv-parsing-job
+  namespace: ollama
+  labels:
+    app: ai-cv-parsing
+spec:
+  template:
+    metadata:
+      labels:
+        app: ai-cv-parsing
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: ai-cv-parsing
+        image: ai-cv-parsing:qwen3-v2
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8000
+        env:
+        - name: OLLAMA_BASE_URL
+          value: "http://ollama-service:11434/v1"
+        - name: PYTHONPATH
+          value: "/app/src"
+        volumeMounts:
+        - name: app-logs
+          mountPath: /app/logs
+        - name: app-uploads
+          mountPath: /app/uploads
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+      volumes:
+      - name: app-logs
+        emptyDir: {}
+      - name: app-uploads
+        emptyDir: {}
